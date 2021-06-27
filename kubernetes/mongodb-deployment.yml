@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongo
+  namespace: truedesk-ticketing
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: mongo
+  template:
+    metadata:
+      labels:
+        service: mongo
+    spec:
+      containers:
+        - name: mongo
+          image: mongo:3.6
+          command:
+            - mongod
+            - "--bind_ip"
+            - "0.0.0.0"
+          ports:
+            - containerPort: 27017
+              name: mongo
+              hostPort: 27017
+              protocol: TCP      
+          #env:
+          #  - name: MONGO_INITDB_ROOT_USERNAME
+          #    valueFrom:
+          #      secretKeyRef:
+          #         name: db-secret
+          #         key: username
+          #  - name: MONGO_INITDB_ROOT_PASSWORD
+          #    valueFrom:
+          #      secretKeyRef:
+          #         name: db-secret
+          #         key: password
+
+          volumeMounts:
+            - mountPath: "/data/db"
+              name: "mongodb-data"
+            - mountPath: "/data/configdb"
+              name: "mongodb-config"
+            - mountPath: "/data/trudesk/plugins"
+              name: "mongodb-plugins"	
+            - mountPath: "/data/trudesk/uploads"
+              name: "mongodb-uploads"	
+            - mountPath: "/data/trudesk/backups"
+              name: "mongodb-backups"	 			  
+      volumes:
+        - hostPath:
+            path: "/apps/mongodb-data"
+          name: mongodb-data
+        - hostPath:
+            path: "/apps/mongodb-data/configdb"
+          name: mongodb-config	 
+        - hostPath:
+            path: "/apps/mongodb-data/plugins"
+          name: mongodb-plugins	 
+        - hostPath:
+            path: "/apps/mongodb-data/uploads"
+          name: mongodb-uploads	  
+        - hostPath:
+            path: "/apps/mongodb-data/backups"
+          name: mongodb-backups

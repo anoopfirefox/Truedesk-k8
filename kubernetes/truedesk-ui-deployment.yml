@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+     app: truedesk-ui
+  name: truedesk-ui
+  namespace: truedesk-ticketing
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+        maxUnavailable: 25%
+        maxSurge: 2
+  selector:
+    matchLabels:
+        app: truedesk-ui
+  template:
+    metadata:
+      labels:
+         app: truedesk-ui
+    spec:
+      containers:
+        - image: polonel/trudesk:1
+          name: truedesk-ui
+          ports:
+          - containerPort: 8118
+            name: truedesk-ui
+
+          env:
+            - name: NODE_ENV
+              value: "production"
+            - name: TRUDESK_DOCKER
+              value: "true"
+            - name: TD_MONGODB_SERVER
+              value: "mongodb-service"
+            - name: TD_MONGODB_DATABASE
+              valueFrom:
+                secretKeyRef:
+                   name: truedesk-secret
+                   key: TD_MONGODB_DATABASE
+           
+
+
